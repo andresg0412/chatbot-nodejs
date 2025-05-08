@@ -1,32 +1,16 @@
-const { createBot, createProvider, createFlow, addKeyword } = require('@bot-whatsapp/bot')
+const { createBot, createProvider, createFlow, addKeyword, EVENTS } = require('@bot-whatsapp/bot')
 
 const QRPortalWeb = require('@bot-whatsapp/portal')
 const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const MockAdapter = require('@bot-whatsapp/database/mock')
 
+const { flowEmpresas } = require('./flows/flowEmpresasOp1');
+const { flowPresentandoSolterosOp2 } = require('./flows/flowSolterosOp2');
+const { flowHistoriasOp3 } = require('./flows/flowHistoriasOp3');
+const { flowEntrevistaOp4 } = require('./flows/flowEntrevistasOp4');
+
 const flowSecundario = addKeyword(['2', 'siguiente']).addAnswer(['📄 Aquí tenemos el flujo secundario'])
 
-const flowDocs = addKeyword(['doc', 'documentacion', 'documentación']).addAnswer(
-    [
-        '📄 Aquí encontras las documentación recuerda que puedes mejorarla',
-        'https://bot-whatsapp.netlify.app/',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowTuto = addKeyword(['tutorial', 'tuto']).addAnswer(
-    [
-        '🙌 Aquí encontras un ejemplo rapido',
-        'https://bot-whatsapp.netlify.app/docs/example/',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
 
 const flowGracias = addKeyword(['gracias', 'grac']).addAnswer(
     [
@@ -41,30 +25,29 @@ const flowGracias = addKeyword(['gracias', 'grac']).addAnswer(
     [flowSecundario]
 )
 
-const flowDiscord = addKeyword(['discord']).addAnswer(
-    ['🤪 Únete al discord', 'https://link.codigoencasa.com/DISCORD', '\n*2* Para siguiente paso.'],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowPrincipal = addKeyword(['hola', 'ole', 'alo'])
-    .addAnswer('🙌 Hola bienvenido a este *Chatbot*')
+//SALUDO INICIAL
+const flowPrincipal = addKeyword(EVENTS.WELCOME)
+    .addAnswer('¡Hola! Soy Conny, creadora de Solteros y Parceros 💘\nGracias por escribirnos 🙌\n\n📲 A través de nuestros canales en Instagram y TikTok conectamos a solteros y solteras de todo el mundo 🌍 y también ofrecemos espacios para que marcas se den a conocer 💼')
     .addAnswer(
         [
-            'te comparto los siguientes links de interes sobre el proyecto',
-            '👉 *doc* para ver la documentación',
-            '👉 *gracias*  para ver la lista de videos',
-            '👉 *discord* unirte al discord',
+            'Por favor, elige la opción que más te interese 👇\n',
+            ' *1*. Pauta Empresas\n *2*. Presentando solteros (con o sin foto)\n *3*. Historias\n *4*. Entrevista Presencial'
         ],
         null,
         null,
-        [flowDocs, flowGracias, flowTuto, flowDiscord]
+        [flowEmpresas, flowPresentandoSolterosOp2, flowHistoriasOp3, flowEntrevistaOp4]
     )
 
 const main = async () => {
     const adapterDB = new MockAdapter()
-    const adapterFlow = createFlow([flowPrincipal])
+    const adapterFlow = createFlow(
+        [
+            flowPrincipal,
+            flowEmpresas,
+            flowPresentandoSolterosOp2,
+            flowHistoriasOp3,
+            flowEntrevistaOp4,
+        ])
     const adapterProvider = createProvider(BaileysProvider)
 
     createBot({
